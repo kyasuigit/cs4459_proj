@@ -42,9 +42,9 @@ class InventoryApp:
             messagebox.showerror("Error", "Enter a valid name and quantity please.")
             return
 
-        node = self.inventory_instance.add_item(item_name, item_quantity)
+        self.inventory_instance.add_item(item_name, item_quantity)
         messagebox.showinfo("Success",
-                            item_name + " added successfully to the inventory system!" + " Stored at node: " + str(node))
+                            item_name + " added successfully to the inventory system!" + " Stored at node: ")
 
     def get_item(self):
         item_name = self.item_entry_field.get()
@@ -54,10 +54,9 @@ class InventoryApp:
             return
 
         quantity = self.inventory_instance.get_item_quantity(item_name)
-        decoded_quantity = quantity.decode("utf-8")
         if quantity:
             messagebox.showinfo("Item Quantity",
-                                "There are " + decoded_quantity + " " + item_name + "'s in the inventory system")
+                                "TEST")
         else:
             messagebox.showerror("Error", "Item not found")
 

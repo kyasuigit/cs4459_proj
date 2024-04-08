@@ -71,7 +71,8 @@ class ChordConsistentHash:
                 if hashed_id in self.nodes[finger[1]].items.keys():
                     return find_item(finger[1])
 
-        return find_item(self.start_point)
+        node_containing_item = find_item(self.start_point)
+        return self.nodes[node_containing_item].items[hashed_id]
 
 if __name__ == "__main__":
     chords = ChordConsistentHash(5)
