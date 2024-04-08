@@ -64,6 +64,7 @@ class ChordConsistentHash:
 
     def get_item(self, item_id):
         hashed_id = self.obtain_hash(item_id)
+
         def find_item(check_id):
             if hashed_id in self.nodes[check_id].items.keys():
                 return check_id

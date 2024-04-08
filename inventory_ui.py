@@ -44,7 +44,7 @@ class InventoryApp:
 
         self.inventory_instance.add_item(item_name, item_quantity)
         messagebox.showinfo("Success",
-                            item_name + " added successfully to the inventory system!" + " Stored at node: ")
+                            item_name + " added successfully to the inventory system!")
 
     def get_item(self):
         item_name = self.item_entry_field.get()
@@ -55,8 +55,8 @@ class InventoryApp:
 
         quantity = self.inventory_instance.get_item_quantity(item_name)
         if quantity:
-            messagebox.showinfo("Item Quantity",
-                                "TEST")
+            messagebox.showinfo("Item Quantity: ",
+                                "Product " + quantity[0] + " has " + quantity[1] + " items.")
         else:
             messagebox.showerror("Error", "Item not found")
 
