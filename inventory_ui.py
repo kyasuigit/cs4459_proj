@@ -37,6 +37,15 @@ class InventoryApp:
         self.canvas.pack()
         self.draw_chord_ring()
 
+        self.button_frame = tk.Frame(master)
+        self.button_frame.pack(side=tk.BOTTOM, padx=10, pady=10)
+
+        self.add_node_button = tk.Button(self.button_frame, text="Add Node to Ring")
+        self.add_node_button.pack(side=tk.RIGHT, padx=5)
+
+        self.delete_node_button = tk.Button(self.button_frame, text="Delete Node From Ring")
+        self.delete_node_button.pack(side=tk.RIGHT, padx=5)
+
     def draw_chord_ring(self):
         num_nodes = len(self.inventory_instance.chord.nodes)
         radius = 180
