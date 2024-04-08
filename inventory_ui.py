@@ -33,6 +33,28 @@ class InventoryApp:
 
         self.inventory_instance = inventory_instance
 
+        self.canvas = tk.Canvas(self.canvas_frame, width=480, height=480)
+        self.canvas.pack()
+        self.draw_chord_ring()
+
+    def draw_chord_ring(self):
+        num_nodes = len(self.inventory_instance.chord.nodes)
+        radius = 180
+        center_x, center_y = 220, 250
+        node_angles = [2 * pi * i / num_nodes for i in range(num_nodes)]
+
+        for i, angle in enumerate(node_angles):
+            x = center_x + radius * cos(angle)
+            y = center_y + radius * sin(angle)
+            self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill="blue")
+            self.canvas.create_text(x, y, text=str(i))
+
+        for i, angle in enumerate(node_angles):
+            start_x = center_x + radius * cos(angle)
+            start_y = center_y + radius * sin(angle)
+            end_x = center_x + radius * cos(node_angles[(i + 1) % num_nodes])
+            end_y = center_y + radius * sin(node_angles[(i + 1) % num_nodes])
+            self.canvas.create_line(start_x, start_y, end_x, end_y)
 
     def add_item(self):
         item_name = self.item_entry_field.get()
@@ -62,7 +84,7 @@ class InventoryApp:
 
 
 if __name__ == "__main__":
-    nodes = 6
+    nodes = 5
 
     inventory = InventorySystem(nodes)
 
