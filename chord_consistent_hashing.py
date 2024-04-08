@@ -7,7 +7,6 @@ class Node:
         self.node_id = node_id
         self.num_nodes = num_nodes
         self.finger_table = finger_table
-        self.items = {}
 
     def obtain_hash(self, key):
         key_str = str(key)
@@ -15,8 +14,9 @@ class Node:
 
 class ChordConsistentHash:
 
-    def __init__(self, num_nodes):
+    def __init__(self, num_nodes, redis_conn):
         self.num_nodes = num_nodes
+        self.redis_conn = redis_conn
         self.nodes = [None] * (2**num_nodes)
         self.start_point = -1
 
@@ -60,20 +60,20 @@ class ChordConsistentHash:
     def add_item(self, item_id, data):
         hash_key = self.obtain_hash(item_id)
         succesor_node = self.find_successor(hash_key)
-        self.nodes[succesor_node].items[hash_key] = data
+        self.redis_conn.set(f"Chord_{succesor_node}_{hash_key}", data[1])
 
     def get_item(self, item_id):
         hashed_id = self.obtain_hash(item_id)
 
         def find_item(check_id):
-            if hashed_id in self.nodes[check_id].items.keys():
+            if self.redis_conn.exists(f"Chord_{check_id}_{hashed_id}"):
                 return check_id
             for finger in self.nodes[check_id].finger_table:
-                if hashed_id in self.nodes[finger[1]].items.keys():
+                if self.redis_conn.exists(f"Chord_{finger[1]}_{hashed_id}"):
                     return find_item(finger[1])
 
         node_containing_item = find_item(self.start_point)
-        return self.nodes[node_containing_item].items[hashed_id]
+        return self.redis_conn.get(f"Chord_{node_containing_item}_{hashed_id}")
 
 if __name__ == "__main__":
     chords = ChordConsistentHash(5)

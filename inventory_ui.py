@@ -56,7 +56,7 @@ class InventoryApp:
         quantity = self.inventory_instance.get_item_quantity(item_name)
         if quantity:
             messagebox.showinfo("Item Quantity: ",
-                                "Product " + quantity[0] + " has " + quantity[1] + " items.")
+                                "Product " + item_name + " has " + quantity + " items.")
         else:
             messagebox.showerror("Error", "Item not found")
 
