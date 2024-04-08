@@ -20,14 +20,14 @@ class ChordConsistentHash:
         self.nodes = [None] * (2**num_nodes)
         self.start_point = -1
 
-        for i in range(0, num_nodes):
+        for i in range(1, num_nodes+1):
             hash_key = self.obtain_hash(i)
             self.add_node(hash_key)
 
-            if i == 0:
+            if i == 1:
                 self.start_point = hash_key
 
-        for i in range(0, num_nodes):
+        for i in range(1, num_nodes+1):
             hash_key = self.obtain_hash(i)
             self.nodes[hash_key].finger_table = self.create_finger_table(hash_key)
 

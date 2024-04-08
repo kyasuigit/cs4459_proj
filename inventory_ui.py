@@ -46,8 +46,11 @@ class InventoryApp:
         for i, angle in enumerate(node_angles):
             x = center_x + radius * cos(angle)
             y = center_y + radius * sin(angle)
-            self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill="blue")
-            self.canvas.create_text(x, y, text=str(i))
+            if self.inventory_instance.chord.nodes[i]:
+                self.canvas.create_oval(x - 7, y - 7, x + 7, y + 7, fill="red")
+            else:
+                self.canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill="blue")
+
 
         for i, angle in enumerate(node_angles):
             start_x = center_x + radius * cos(angle)
@@ -84,7 +87,7 @@ class InventoryApp:
 
 
 if __name__ == "__main__":
-    nodes = 5
+    nodes = 6
 
     inventory = InventorySystem(nodes)
 
