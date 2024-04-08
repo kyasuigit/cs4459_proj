@@ -33,7 +33,6 @@ class InventoryApp:
 
         self.inventory_instance = inventory_instance
 
-        self.chord_visualizer=ChordRingGUI(self.canvas_frame, self.inventory_instance.chord)
 
     def add_item(self):
         item_name = self.item_entry_field.get()
@@ -63,42 +62,8 @@ class InventoryApp:
             messagebox.showerror("Error", "Item not found")
 
 
-class ChordRingGUI:
-    def __init__(self, master, chord):
-        self.master = master
-        self.canvas_width = 400
-        self.canvas_height = 400
-        self.canvas = tk.Canvas(master, width=400, height=400)
-        self.canvas.pack()
-
-        self.chord = chord
-        self.draw_ring()
-
-    def draw_ring(self):
-        num_nodes = len(self.chord.sorted_keys)
-        angle_increment = 2 * pi / num_nodes
-
-        for i, ring_key in enumerate(self.chord.sorted_keys):
-            x = self.canvas_width / 2 + self.canvas_width / 3 * cos(i * angle_increment)
-            y = self.canvas_height / 2 + self.canvas_height / 3 * sin(i * angle_increment)
-            self.canvas.create_oval(x-5, y-5, x+5, y+5, fill="blue")
-            self.canvas.create_text(x, y-15, text=str(i))
-
-        for i, ring_key in enumerate(self.chord.sorted_keys):
-            successor_key = self.chord.get_successor(ring_key)
-            if successor_key is not None:
-                successor_index = self.chord.sorted_keys.index(successor_key)
-                start_x = self.canvas_width / 2 + self.canvas_width / 3 * cos(i * angle_increment)
-                start_y = self.canvas_height / 2 + self.canvas_height / 3 * sin(i * angle_increment)
-                end_x = self.canvas_width / 2 + self.canvas_width / 3 * cos(successor_index * angle_increment)
-                end_y = self.canvas_height / 2 + self.canvas_height / 3 * sin(successor_index * angle_increment)
-
-                self.canvas.create_line(start_x, start_y, end_x, end_y, fill="black")
-
-
-
 if __name__ == "__main__":
-    nodes = ['localhost']
+    nodes = 6
 
     inventory = InventorySystem(nodes)
 

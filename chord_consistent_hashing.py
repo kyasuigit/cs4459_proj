@@ -2,62 +2,83 @@ import redis
 import hashlib
 
 
-class ChordConsistentHash:
-
-    def __init__(self, nodes, num_nodes=5):
+class Node:
+    def __init__(self, node_id, num_nodes, finger_table):
+        self.node_id = node_id
         self.num_nodes = num_nodes
-        self.ring = {}
-        self.sorted_keys = []
-        self.finger_table = []
-
-        if nodes:
-            for node in nodes:
-                self.add_node(node)
-
-    def create_finger_table(self):
-        self.finger_table = [None] * (2 ** self.num_nodes)
-
-        for i in range(self.num_nodes):
-            finger_key = (2 ** i) % (2 % self.num_nodes)
-            self.finger_table[finger_key]  = self.get_successor(finger_key)
+        self.finger_table = finger_table
+        self.items = {}
 
     def obtain_hash(self, key):
         key_str = str(key)
         return int(hashlib.sha1(key_str.encode()).hexdigest(), 16) % (2 ** self.num_nodes)
 
-    def add_node(self, node):
-        for i in range(2 ** self.num_nodes):
-            key = self.obtain_hash(f"{node}-{i}")
-            self.ring[key] = node
-            self.sorted_keys.append(key)
+class ChordConsistentHash:
 
-        self.sorted_keys.sort()
-        self.create_finger_table()
+    def __init__(self, num_nodes):
+        self.num_nodes = num_nodes
+        self.nodes = [None] * (2**num_nodes)
+        self.start_point = -1
 
-    def remove_node(self, node):
-        for i in range(2 ** self.num_nodes):
-            key = self.obtain_hash(f"{node}-{i}")
-            del self.ring[key]
-            self.sorted_keys.remove(key)
+        for i in range(0, num_nodes):
+            hash_key = self.obtain_hash(i)
+            self.add_node(hash_key)
 
-    def get_successor(self, key):
-        if key in self.finger_table:
-            return self.finger_table[key]
+            if i == 0:
+                self.start_point = hash_key
 
-        hash_val = self.obtain_hash(key)
-        for ring_key in self.sorted_keys:
-            if hash_val < ring_key:
-                return ring_key
+        for i in range(0, num_nodes):
+            hash_key = self.obtain_hash(i)
+            self.nodes[hash_key].finger_table = self.create_finger_table(hash_key)
 
-        return self.sorted_keys[0]
+    def add_node(self, node_id):
+        new_node = Node(node_id, self.num_nodes, None)
+        self.nodes[int(node_id)] = new_node
 
-    def get_node(self, key):
-        if not self.ring:
-            return None
+    def obtain_hash(self, key):
+        key_str = str(key)
+        return int(hashlib.sha1(key_str.encode()).hexdigest(), 16) % (2 ** self.num_nodes)
 
-        hash_val = self.obtain_hash(key)
-        for ring_key in self.sorted_keys:
-            if hash_val < ring_key:
-                return self.ring[ring_key]
+    def create_finger_table(self, node_id):
+        finger_table = []
+        for i in range(self.num_nodes):
+            finger_start = (node_id + 2**i) % (2 ** self.num_nodes)
+            finger_succ = self.find_successor(finger_start)
+            finger_table.append([finger_start, finger_succ])
+        return finger_table
 
-        return self.sorted_keys[0]
+    def find_successor(self, key):
+        successor = None
+
+        for i in range(key, key + len(self.nodes)):
+            if self.nodes[i % (2 ** self.num_nodes)]:
+                successor = i % (2 ** self.num_nodes)
+                break
+
+        return successor
+
+    def add_item(self, item_id, data):
+        hash_key = self.obtain_hash(item_id)
+        succesor_node = self.find_successor(hash_key)
+        self.nodes[succesor_node].items[hash_key] = data
+
+    def get_item(self, item_id):
+        hashed_id = self.obtain_hash(item_id)
+        def find_item(check_id):
+            if hashed_id in self.nodes[check_id].items.keys():
+                return check_id
+            for finger in self.nodes[check_id].finger_table:
+                if hashed_id in self.nodes[finger[1]].items.keys():
+                    return find_item(finger[1])
+
+        return find_item(self.start_point)
+
+if __name__ == "__main__":
+    chords = ChordConsistentHash(5)
+    chords.add_item(13, "TEST")
+    chords.add_item(54, "TESTASD")
+    for x in chords.nodes:
+        if x:
+            print(x.node_id, x.items)
+
+
