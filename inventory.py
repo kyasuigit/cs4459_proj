@@ -28,3 +28,6 @@ class InventorySystem:
     
     def add_new_node(self):
         self.chord.add_new_node()
+
+    def delete_node(self):
+        self.chord.remove_node()

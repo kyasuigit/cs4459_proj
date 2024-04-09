@@ -103,10 +103,10 @@ class InventoryApp:
             messagebox.showerror("Error", "Enter a valid item name please.")
             return
 
-        quantity = self.inventory_instance.get_item_quantity(item_name)
+        quantity = self.inventory_instance.get_item_quantity(item_name).split(",")
         if quantity:
             messagebox.showinfo("Item Quantity: ",
-                                "Product " + item_name + " has " + quantity + " items.")
+                                "Product " + item_name + " has " + quantity[1] + " items.")
         else:
             messagebox.showerror("Error", "Item not found")
 
@@ -116,7 +116,7 @@ class InventoryApp:
         if number_of_nodes == 2:
                 messagebox.showerror("Caution", "Removing more nodes after" +  str(number_of_nodes) + "nodes is not advised!")
         else:
-            self.inventory_instance.change_chord_algorithm(number_of_nodes - 1) 
+            self.inventory_instance.delete_node()
             self.draw_chord_ring()
 
     def add_node(self):

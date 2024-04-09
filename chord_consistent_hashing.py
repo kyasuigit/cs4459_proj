@@ -16,6 +16,7 @@ class ChordConsistentHash:
 
     def __init__(self, num_nodes, redis_conn):
         self.num_nodes = num_nodes
+        self.node_count = num_nodes
         self.redis_conn = redis_conn
         self.nodes = [None] * (2**num_nodes)
         self.start_point = -1
@@ -69,21 +70,21 @@ class ChordConsistentHash:
     
     def add_new_node(self):
         # increment nodes
-        self.num_nodes += 1
-        key = self.obtain_hash(self.num_nodes)
+        self.node_count += 1
+        key = self.obtain_hash(self.node_count)
         predecessor = self.find_predecessor(key)
         successor = self.find_successor(key)
-        new_node = Node(key, self.num_nodes,)
+        new_node = Node(key, self.num_nodes, [])
         self.nodes[key] = new_node
-
 
         # Go between the successor and predecessor 
         for i in range((predecessor+1) % 2**self.num_nodes,  (key+1)% 2**self.num_nodes):
 
-            # fetch all ids with the matching i value 
-            tempItem = self.redis_conn.get(f"Chord_{successor}_{i}")
-            self.redis_conn.delete(f"Chord_{successor}_{i}")
-            self.redis_conn.add(f"Chord_{key}_{i}")
+            # fetch all ids with the matching i value
+            if self.redis_conn.exists(f"Chord_{successor}_{i}"):
+                tempItem = self.redis_conn.get(f"Chord_{successor}_{i}")
+                self.redis_conn.delete(f"Chord_{successor}_{i}")
+                self.redis_conn.set(f"Chord_{key}_{i}", tempItem)
 
         for i in range(1, self.num_nodes+1):
             hash_key = self.obtain_hash(i)
@@ -91,7 +92,21 @@ class ChordConsistentHash:
 
 
     def remove_node(self):
-        pass
+        key = self.obtain_hash(self.node_count)
+        self.node_count -= 1
+        predecessor = self.find_predecessor(key)
+        successor = self.find_successor((key+1) % 2 ** self.num_nodes)
+        self.nodes[key] = None
+
+        for i in range((predecessor + 1) % 2 ** self.num_nodes, (key + 1) % 2 ** self.num_nodes):
+            if self.redis_conn.exists(f"Chord_{key}_{i}"):
+                tempItem = self.redis_conn.get(f"Chord_{key}_{i}")
+                self.redis_conn.delete(f"Chord_{key}_{i}")
+                self.redis_conn.set(f"Chord_{successor}_{i}", tempItem)
+
+        for i in range(1, self.num_nodes+1):
+            hash_key = self.obtain_hash(i)
+            self.nodes[hash_key].finger_table = self.create_finger_table(hash_key)
 
     def delete_item(self, item_id):
         hash_key= self.obtain_hash(item_id)
