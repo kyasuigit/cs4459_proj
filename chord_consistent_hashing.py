@@ -66,29 +66,38 @@ class ChordConsistentHash:
                 break
         
         return predecessor
-
     
-    # method for adding a new node to the hash
-    # need to find the predecessor and get everything stored at the node in the finger table 
-    # and create a new finger table in the currently added node to store all of the items
-    def redistribute_items(self, new_node_id):
-        new_node = self.nodes[new_node_id]
+    def add_new_node(self):
+        # increment nodes
+        self.num_nodes += 1
+        key = self.obtain_hash(self.num_nodes)
+        predecessor = self.find_predecessor(key)
+        successor = self.find_successor(key)
+        new_node = Node(key, self.num_nodes,)
+        self.nodes[key] = new_node
 
-        predecessor_id = self.find_predecessor(new_node_id)
 
-        if predecessor_id is not None:
-            predecessor_node = self.nodes[predecessor_id]
+        # Go between the successor and predecessor 
+        for i in range((predecessor+1) % 2**self.num_nodes,  (key+1)% 2**self.num_nodes):
 
-            for finger_start, finger_sucessor in predecessor_node.finger_table:
-                if finger_sucessor == new_node_id:
-                    items_to_transfer = self.redis_conn.keys(f"Chord_{finger_start}_*")
-                    for item_key in items_to_transfer:
-                        item_value = self.redis_conn.get(item_key)
-                        new_key = item_key.replace(str(finger_sucessor), str(new_node_id))
-                        self.redis_conn.set(new_key, item_value)
+            # fetch all ids with the matching i value 
+            tempItem = self.redis_conn.get(f"Chord_{successor}_{i}")
+            self.redis_conn.delete(f"Chord_{successor}_{i}")
+            self.redis_conn.add(f"Chord_{key}_{i}")
 
-                    self.redis_conn.delete(*items_to_transfer)
+        for i in range(1, self.num_nodes+1):
+            hash_key = self.obtain_hash(i)
+            self.nodes[hash_key].finger_table = self.create_finger_table(hash_key)
 
+
+    def remove_node(self):
+        pass
+
+    def delete_item(self, item_id):
+        hash_key= self.obtain_hash(item_id)
+        succesor_node = self.find_successor(hash_key)
+        # get redis hash
+        self.redis_conn.delete(f"Chord_{succesor_node}_{hash_key}")
 
     def add_item(self, item_id, data):
         hash_key = self.obtain_hash(item_id)

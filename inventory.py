@@ -25,3 +25,6 @@ class InventorySystem:
 
     def get_all_items(self, node_id):
         return self.chord.get_all_items(node_id)
+    
+    def add_new_node(self):
+        self.chord.add_new_node()

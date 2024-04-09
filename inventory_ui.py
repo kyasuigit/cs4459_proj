@@ -121,15 +121,15 @@ class InventoryApp:
 
     def add_node(self):
         number_of_nodes = self.inventory_instance.get_number_of_nodes()
-        if number_of_nodes == 6:
+        if number_of_nodes == 100:
             messagebox.showerror("Caution", "Adding more nodes past " + str(number_of_nodes) + " nodes is not advised!")
         else:
-            self.inventory_instance.change_chord_algorithm(number_of_nodes + 1)
+            self.inventory_instance.add_new_node()
             self.draw_chord_ring()
 
 
 if __name__ == "__main__":
-    nodes = 4
+    nodes = 6
     inventory = InventorySystem(nodes)
     root = tk.Tk()
     app = InventoryApp(root, inventory)
