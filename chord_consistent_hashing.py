@@ -76,7 +76,6 @@ class ChordConsistentHash:
         new_node = Node(key, self.num_nodes,)
         self.nodes[key] = new_node
 
-
         # Go between the successor and predecessor 
         for i in range((predecessor+1) % 2**self.num_nodes,  (key+1)% 2**self.num_nodes):
 
