@@ -138,12 +138,3 @@ class ChordConsistentHash:
             listOfItems.append(self.redis_conn.get(key))
         
         return listOfItems
-
-
-if __name__ == "__main__":
-    chords = ChordConsistentHash(5)
-    chords.add_item(13, "TEST")
-    chords.add_item(54, "TESTASD")
-    for x in chords.nodes:
-        if x:
-            print(x.node_id, x.items)
