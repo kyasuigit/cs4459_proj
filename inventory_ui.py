@@ -26,7 +26,7 @@ class InventoryApp:
         self.item_label.grid(row=0, column=0)
         self.item_entry_field = tk.Entry(self.ui_frame)
         self.item_entry_field.grid(row=0, column=1)
-        self.quantity_label = tk.Label(self.ui_frame, text="Quantity:")
+        self.quantity_label = tk.Label(self.ui_frame, text="Quantity:") #add all fields for text input and buttons
         self.quantity_label.grid(row=1, column=0)
         self.quantity_entry_field = tk.Entry(self.ui_frame)
         self.quantity_entry_field.grid(row=1, column=1)

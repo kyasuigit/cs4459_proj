@@ -2,7 +2,7 @@ from chord_consistent_hashing import ChordConsistentHash
 import redis
 
 
-class InventorySystem:
+class InventorySystem: #tempalte class for connecting to redis and getting necessary functions in the UI linked to the chord ring
     def __init__(self, node_num):
         self.redis_conn = redis.StrictRedis(host='localhost', port=6379, db=0)
         self.chord = ChordConsistentHash(node_num, self.redis_conn)
